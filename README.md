@@ -4,7 +4,7 @@ Laboratorio 1 de Product Development (Maestría en Data Science, Universidad Gal
 entrega corregida según la retroalimentación de la primera revisión** (ver
 [Cambios respecto a la primera entrega](DECISIONES.md#cambios-respecto-a-la-primera-entrega)).
 
-**Integrante:** Robinson René López Hidalgo (26007448).
+**Integrante:** Robinson René López Hidalgo (26007448). Ver [Autoría](#autoría).
 
 Cada lunes el motor pronostica las ventas diarias de los 16 días siguientes para las 54 tiendas y
 33 familias de producto (1 782 series) y sugiere cuánto pedir, balanceando el costo de quedarse sin
@@ -25,22 +25,63 @@ seguimiento_desempeno (lunes)   pronósticos publicados vs ventas reales (error 
 ## Levantar el producto desde cero
 
 Requisitos: Docker con Docker Compose v2 (en Windows, Docker Desktop con WSL 2), unos 4 GB de
-memoria para Docker y el puerto 8080 libre.
+memoria para Docker y el puerto 8080 libre. No hace falta Python en la máquina para operar el
+producto: todo corre en contenedores.
+
+### Paso 1 · Clonar la versión entregada
 
 ```bash
 git clone https://github.com/robinsonlopez-galileo/motor-reposicion-inventario-v2.git
 cd motor-reposicion-inventario-v2
 git checkout entrega-lab1
+```
 
-# 1. Datos: los archivos de Kaggle van en datos/kaggle/
-#    https://www.kaggle.com/competitions/store-sales-time-series-forecasting/data
-#    Sirven los CSV sueltos (train.csv, stores.csv, oil.csv, holidays_events.csv,
-#    transactions.csv) o el ZIP tal como lo descarga Kaggle.
+### Paso 2 · Colocar los archivos de Kaggle en `datos/kaggle/`
+
+Los archivos de la competencia *Store Sales - Time Series Forecasting*
+(https://www.kaggle.com/competitions/store-sales-time-series-forecasting/data) van en la carpeta
+**`datos/kaggle/`, dentro de la carpeta `datos/` de la raíz del repositorio** (junto a
+`docker-compose.yml`). Hay que crear la subcarpeta `kaggle`:
+
+```
+motor-reposicion-inventario-v2/
+├── docker-compose.yml
+└── datos/
+    ├── LEEME.md                 (ya viene en el repositorio)
+    ├── kaggle.dvc               (ya viene en el repositorio)
+    └── kaggle/                  ← aquí
+        ├── train.csv            (obligatorio)
+        ├── stores.csv           (obligatorio)
+        ├── oil.csv              (obligatorio)
+        ├── holidays_events.csv  (obligatorio)
+        └── transactions.csv     (obligatorio)
+```
+
+Sirve cualquiera de las dos formas:
+
+- **El ZIP tal como lo descarga Kaggle** (`store-sales-time-series-forecasting.zip`), sin
+  descomprimir. El motor busca los CSV dentro del ZIP.
+- **Los CSV sueltos**, directamente en `datos/kaggle/` y no en una subcarpeta adentro.
+
+`test.csv` y `sample_submission.csv` no se usan; si están, no estorban. Por ejemplo:
+
+```bash
 mkdir -p datos/kaggle
-cp ~/Descargas/store-sales-time-series-forecasting.zip datos/kaggle/
+cp ~/Downloads/store-sales-time-series-forecasting.zip datos/kaggle/   # ajuste la ruta de su descarga
+ls datos/kaggle/
+```
 
-# 2. Construir y levantar (no hace falta archivo .env)
+Docker Compose monta `./datos/kaggle` en **solo lectura**. Si falta algún archivo, el servicio
+`carga-inicial` termina con el mensaje «Faltan archivos de Kaggle» y la lista de los que faltan.
+Los archivos no se suben a Git: DVC rastrea la carpeta (`datos/kaggle.dvc`).
+
+### Paso 3 · Construir y levantar
+
+No hace falta archivo `.env`: todos los valores tienen un valor por defecto.
+
+```bash
 docker compose up -d --build
+docker compose ps -a      # airflow-init y carga-inicial terminan en Exited (0); el resto queda en running
 ```
 
 Al levantarse, sin ninguna intervención:
@@ -243,6 +284,16 @@ sintéticos y espera a que todas las ejecuciones de los DAGs terminen en *succes
 └── README.md · DECISIONES.md · AGENTS.md
 ```
 
+## Documentación
+
+| Archivo | Contenido |
+|---|---|
+| `README.md` | Este archivo: cómo levantar el producto desde cero, dónde quedan los resultados y la evidencia de reproducción con DVC. |
+| [`DECISIONES.md`](DECISIONES.md) | Decisiones técnicas y de producto (D1 a D17) con sus alternativas y su justificación, y los cambios respecto a la primera entrega. |
+| [`AGENTS.md`](AGENTS.md) | Archivo de contexto para el agente de programación: producto, estructura, comandos y reglas del proyecto. |
+| [`datos/LEEME.md`](datos/LEEME.md) | Qué archivos van en `datos/kaggle/`. |
+| [`evidencia/`](evidencia/) | Operación completa de 2017, ejecuciones en Airflow 3 y reproducción con DVC. |
+
 ## Problemas frecuentes
 
 | Síntoma | Solución |
@@ -253,3 +304,8 @@ sintéticos y espera a que todas las ejecuciones de los DAGs terminen en *succes
 | Airflow lento o se reinicia | Asigne al menos 4 GB a Docker (Docker Desktop → Settings → Resources) o baje `AIRFLOW_PARALELISMO` en `.env`. |
 | En Linux, errores de permisos | `echo "AIRFLOW_UID=$(id -u)" >> .env` y vuelva a levantar. |
 | Puerto 8080 ocupado | Libérelo o cambie el puerto publicado de `airflow-apiserver` en `docker-compose.yml`. |
+
+## Autoría
+
+Robinson René López Hidalgo (26007448). Desarrollado con apoyo de Claude Code como agente de
+programación; las decisiones y la verificación del código son responsabilidad del estudiante.
