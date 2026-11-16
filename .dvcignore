@@ -1,0 +1,5 @@
+# Archivos que DVC no debe considerar al calcular el hash de las dependencias.
+__pycache__/
+*.pyc
+*.egg-info/
+.ipynb_checkpoints/

@@ -1,0 +1,22 @@
+# Reproducción de un pronóstico pasado.
+#
+# La etapa ejecuta, en una carpeta temporal, la misma operación que hacen los DAGs (carga inicial,
+# ingesta diaria y los pasos semanales) desde el inicio de la bandeja hasta el corte de
+# params.yaml, y guarda el pronóstico, el pedido semanal y las métricas de ese corte.
+# Depende de los CSV de Kaggle (datos/kaggle.dvc), del código y de la configuración: si nada de
+# eso cambia, `dvc repro` no vuelve a calcular y `dvc checkout` recupera el resultado del caché.
+stages:
+  reproducir:
+    cmd: python -m motor_reposicion.cli reproducir --params params.yaml --salida reproduccion
+    deps:
+      - datos/kaggle
+      - src/motor_reposicion
+      - config
+    params:
+      - reproduccion.corte
+    outs:
+      - reproduccion/pronostico.parquet
+      - reproduccion/pedido_semanal.csv
+    metrics:
+      - reproduccion/metricas.json:
+          cache: false
