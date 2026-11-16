@@ -49,3 +49,45 @@ jobs:
           AIRFLOW_HOME: ${{ runner.temp }}/airflow
           AIRFLOW__CORE__LOAD_EXAMPLES: "false"
         run: python scripts/verificar_dags.py
+
+  docker:
+    name: Docker Compose de punta a punta
+    needs: [pruebas]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    env:
+      # Periodo corto de los datos sintéticos: 44 días y 7 cortes semanales.
+      CORTE_HISTORICO: "2016-01-31"
+      FIN_OPERACION: "2016-03-15"
+      MOTOR_POKE_INTERVAL: "10"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Datos sintéticos con el formato de Kaggle en datos/kaggle
+        run: |
+          pip install -e .
+          python -m motor_reposicion.sintetico datos/kaggle
+      - name: Validar docker-compose.yml
+        run: docker compose config -q
+      - name: Construir la imagen
+        run: docker compose build
+      - name: Levantar el producto
+        run: docker compose up -d
+      - name: Esperar a que Airflow procese el periodo completo
+        run: bash scripts/esperar_operacion.sh 2400
+      - name: Diagnóstico
+        if: always()
+        run: |
+          docker compose ps -a
+          docker compose logs carga-inicial
+          docker compose logs --tail 150 airflow-scheduler
+          for dag in ingesta_fuentes preparacion_datos pronostico_semanal seguimiento_desempeno; do
+            docker compose exec -T airflow-scheduler airflow dags list-runs "$dag" || true
+          done
+      - name: Apagar
+        if: always()
+        run: docker compose down -v
