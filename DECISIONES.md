@@ -4,6 +4,19 @@ Cada decisión tiene el contexto, las alternativas que se consideraron y la just
 vienen de la operación simulada de enero a agosto de 2017 con los datos reales de Kaggle
 (`evidencia/operacion_2017.md`).
 
+## Índice por requisito del enunciado
+
+| Requisito | Decisiones |
+|---|---|
+| Datos fuera de Git y reproducción de un pronóstico pasado con DVC | [D16](#d16--dvc) |
+| Ingesta y validación de la bandeja | [D1](#d1--carga-histórica-y-periodo-de-operación), [D2](#d2--bandeja-y-catálogos), [D6](#d6--correcciones-de-datos-ya-entregados), [D7](#d7--validación-de-la-bandeja) |
+| Preparación de datos sin fuga de información | [D3](#d3--disponibilidad-temporal-de-la-información-sin-fuga), [D4](#d4--variables-del-modelo), [D5](#d5--días-con-la-tienda-cerrada) |
+| Baseline, modelo de ML y validación temporal | [D8](#d8--validación-temporal-y-ventana-de-entrenamiento), [D10](#d10--baseline-y-modelo-de-machine-learning) |
+| Pronóstico y pedido sugerido | [D9](#d9--pedido-sugerido), [D11](#d11--criterio-de-reemplazo-del-modelo) |
+| Métricas técnicas y de negocio, seguimiento del desempeño | [D12](#d12--métricas) |
+| Airflow 3 con Docker Compose | [D13](#d13--orquestación-con-airflow-3), [D14](#d14--idempotencia), [D15](#d15--docker-compose) |
+| Repositorio, CI y archivo de contexto del agente | [D17](#d17--repositorio-ci-y-archivo-de-contexto) |
+
 ## Cambios respecto a la primera entrega
 
 | Retroalimentación | Qué se hizo |
@@ -281,3 +294,22 @@ enunciado prohíbe).
 **Justificación.** Una carpeta local es la opción vista en clase y no depende de credenciales. La
 etapa usa la misma función que los DAGs, así que reproducir con DVC es reproducir el producto. La
 evidencia (comandos y resultados, con hashes idénticos) está en el README.
+
+## D17 · Repositorio, CI y archivo de contexto
+
+**Decisión.** El trabajo se divide en ramas `feature/*` y `docs/*` que se encadenan; cada una entra
+a `main` por Pull Request solo con la CI en verde, y la versión entregada se marca con el tag anotado
+`entrega-lab1`. La CI tiene tres jobs: `pruebas` (ruff y pytest), `dags` (importa y revisa los DAGs
+con Airflow 3.3.2 y rechaza APIs retiradas) y `docker` (levanta el compose con datos sintéticos y
+exige *success* en todas las ejecuciones). El archivo de contexto para el agente de programación es
+`AGENTS.md`.
+
+**Alternativas.** Un solo commit o un solo PR con todo (es lo que señaló la retroalimentación);
+una CI que solo corra pytest (no habría detectado los DAGs incompatibles con Airflow 3 ni un compose
+que no levanta); `CLAUDE.md` como archivo de contexto.
+
+**Justificación.** Los PR por tema dejan ver cómo se construyó el motor y permiten revisar cada parte
+por separado. La CI prueba lo que el equipo docente va a hacer: levantar el compose y ejecutar el
+flujo sin intervención. Cada rama debe ser autosuficiente: cuando un archivo que usa la CI (las
+restricciones de Airflow) llegaba en un PR posterior, la CI del anterior fallaba. `AGENTS.md` es un
+formato abierto que leen varios agentes de programación (Claude Code, Codex, OpenCode).

@@ -1,8 +1,17 @@
-# Motor de reposición de inventario · Contexto para el agente de programación
+# AGENTS.md · Motor de reposición de inventario
 
-Laboratorio 1 de Product Development. Pipeline de ML orquestado con Airflow 3 que, cada lunes,
-pronostica las ventas diarias de los 16 días siguientes por tienda y familia de Corporación
-Favorita (datos de Kaggle *Store Sales - Time Series Forecasting*) y sugiere cuánto pedir.
+Archivo de contexto para agentes de programación (Claude Code, Codex, OpenCode u otros).
+Laboratorio 1 de Product Development (Maestría en Data Science, Universidad Galileo). Léelo completo
+antes de cambiar código. El estudiante responsable revisa y justifica todo lo que se integra a
+`main`.
+
+## Producto
+Pipeline de ML orquestado con Airflow 3 que, cada lunes, pronostica las ventas diarias de los 16
+días siguientes por tienda y familia de Corporación Favorita (datos de Kaggle *Store Sales - Time
+Series Forecasting*) y sugiere cuánto pedir, balanceando el costo de quiebre (0.30 por unidad
+faltante) con el de merma (0.10 por unidad sobrante). El equipo docente coloca los archivos de
+Kaggle en `datos/kaggle/`, levanta el `docker compose` y el flujo corre solo sobre el periodo de
+`config/operacion.yaml`, sin intervención manual.
 
 ## Estructura
 - `src/motor_reposicion/`: toda la lógica, sin dependencias de Airflow (se prueba con pytest).
@@ -42,4 +51,23 @@ Favorita (datos de Kaggle *Store Sales - Time Series Forecasting*) y sugiere cu�
 6. Datos y modelos nunca en Git: `data/`, `datos/kaggle/` y `reproduccion/` se versionan con DVC.
 7. Toda función pública nueva lleva prueba. La CI (ruff, pytest, DAGs y Docker de punta a punta)
    debe pasar antes de integrar.
-8. Ramas `feature/<tema>` o `fix/<tema>`, Pull Request a `main`, commits en español e imperativo.
+8. Ramas `feature/<tema>`, `fix/<tema>` o `docs/<tema>`, Pull Request a `main`, commits en español e
+   imperativo. La versión entregada se identifica con el tag `entrega-lab1`.
+9. Cada rama debe ser autosuficiente: si la CI usa un archivo (por ejemplo, las restricciones de
+   Airflow en `docker/`), ese archivo debe estar en la misma rama.
+10. Cambios de comportamiento (variables, pedido, compuerta, periodo, validación de la bandeja) se
+    documentan en DECISIONES.md en el mismo Pull Request. No cambiar parámetros del modelo sin
+    evidencia de la operación.
+
+## Datos
+- Entrada: los CSV de Kaggle (`train.csv`, `stores.csv`, `oil.csv`, `holidays_events.csv`,
+  `transactions.csv`) o el ZIP de la competencia, directamente en `datos/kaggle/`.
+- Trabajo: `data/` (`raw/`, `inbox/`, `processed/`, `models/`, `forecasts/`, `reports/`, `control/`);
+  en Docker es el volumen `motor-datos` (`/opt/motor/data`).
+- Las pruebas usan datos sintéticos (`motor_reposicion.sintetico`): nunca dependen de Kaggle.
+
+## Definición de terminado
+Un cambio está listo cuando pasan `ruff check .`, `pytest` y `scripts/verificar_dags.py`, el
+`docker compose up -d --build` procesa el periodo con todas las ejecuciones en *success* (job
+`docker` de la CI), `dvc repro` sigue dando el mismo pronóstico para el corte de `params.yaml` y
+la documentación refleja el cambio.
