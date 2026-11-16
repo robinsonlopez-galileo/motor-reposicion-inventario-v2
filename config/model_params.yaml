@@ -1,0 +1,33 @@
+# Parámetros del modelo de pronóstico de ventas diarias por tienda y familia.
+
+modelo:
+  # HistGradientBoostingRegressor de scikit-learn con pérdida Poisson (ventas no negativas).
+  loss: poisson
+  max_iter: 250
+  learning_rate: 0.08
+  max_leaf_nodes: 63
+  min_samples_leaf: 40
+  l2_regularization: 0.1
+  random_state: 42
+
+# Días de historia con los que se entrena cada candidato (ventana móvil).
+training_window_days: 365
+
+# Validación temporal: los últimos N días antes del corte no se usan para entrenar y sirven para
+# comparar candidato, modelo vigente y baseline con la misma información.
+validation_days: 28
+
+# Variables de rezago. Todas deben ser mayores o iguales al horizonte (16) para que ninguna use
+# ventas posteriores al corte (ver DECISIONES.md, D4).
+features:
+  lags: [21, 28, 35, 42]
+  rolling_windows: [7, 28, 84]
+
+# Baseline: promedio de las últimas N semanas del mismo día de la semana.
+baseline:
+  rolling_weeks: 8
+
+# Criterio de reemplazo del modelo vigente.
+replacement:
+  metric: costo_total            # costo de merma + quiebre del pedido sugerido en validación
+  min_improvement_pct: 2.0       # el candidato debe bajar ese costo al menos 2 %

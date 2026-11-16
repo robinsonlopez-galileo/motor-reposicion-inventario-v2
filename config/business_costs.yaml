@@ -1,0 +1,16 @@
+# Costos de negocio del pedido sugerido. Cambiar estos valores cambia las recomendaciones sin tocar
+# el código. Están expresados como fracción del precio de venta promedio de una unidad.
+costs:
+  # Quiebre de stock: margen perdido por cada unidad que se pudo vender y no había.
+  stockout_cost_per_unit: 0.30
+  # Merma: pérdida por cada unidad pedida de más que no se vende (vencimiento, descuento, bodega).
+  waste_cost_per_unit: 0.10
+
+# Horizonte del pronóstico: días siguientes al corte que se pronostican cada semana.
+forecast_horizon_days: 16
+
+# Días que cubre el pedido semanal (lunes a domingo siguientes al corte).
+order_days: 7
+
+# Límites del factor que convierte la venta esperada en pedido (ver DECISIONES.md, D9).
+order_factor_bounds: [0.5, 3.0]

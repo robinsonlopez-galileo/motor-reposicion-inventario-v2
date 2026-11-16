@@ -1,0 +1,40 @@
+# Datos: nunca en Git. Los CSV de Kaggle y todo lo que genera el motor se versionan con DVC.
+/data/*
+!/data/LEEME.md
+/datos/kaggle
+/reproduccion/*
+!/reproduccion/LEEME.md
+!/reproduccion/metricas.json
+*.csv
+*.parquet
+*.pkl
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# Entorno y Airflow local
+.env
+logs/
+airflow.db
+airflow.cfg
+
+# DVC
+/.dvc/cache
+/.dvc/tmp
+/.dvc/config.local
+
+# Editor y sistema
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

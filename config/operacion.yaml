@@ -1,0 +1,12 @@
+# Periodo de operación simulado. Se puede sobrescribir con las variables de entorno
+# CORTE_HISTORICO y FIN_OPERACION (por ejemplo, en el archivo .env de Docker Compose).
+#
+# - Las ventas hasta corte_historico (inclusive) forman la carga histórica inicial (data/raw/).
+# - Los días siguientes, hasta fin_operacion, se dejan en la bandeja (data/inbox/), un archivo
+#   por fuente y por día, y los DAGs los procesan como si llegaran del sistema de origen.
+corte_historico: "2016-12-31"
+fin_operacion: "2017-08-15"
+
+# Fuentes que llegan cada día a la bandeja. Tiendas y feriados son catálogos: se cargan completos
+# al inicio (el calendario de feriados se publica con anticipación).
+fuentes_bandeja: [ventas, oil, transactions]

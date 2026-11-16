@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "motor-reposicion-inventario"
+version = "2.0.0"
+description = "Motor de reposición de inventario para Corporación Favorita (Laboratorio 1, Product Development)"
+requires-python = ">=3.11"
+# Mismas versiones que la imagen de Airflow 3.3.2 (constraints oficiales para Python 3.12).
+dependencies = [
+    "pandas==3.0.5",
+    "numpy==2.5.3",
+    "scikit-learn==1.9.1",
+    "pyarrow==25.0.1",
+    "PyYAML==6.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.4.2",
+    "ruff==0.14.0",
+]
+dvc = [
+    "dvc==3.66.1",
+]
+
+[project.scripts]
+motor = "motor_reposicion.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
