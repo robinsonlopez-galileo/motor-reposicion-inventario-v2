@@ -27,3 +27,25 @@ jobs:
         run: ruff check .
       - name: Pruebas (pytest, con datos sintéticos)
         run: pytest -v
+
+  dags:
+    name: DAGs compatibles con Airflow 3
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            docker/constraints-airflow-3.3.2-python3.12.txt
+      - name: Instalar Airflow 3.3.2 con sus restricciones oficiales y el paquete
+        run: >
+          pip install "apache-airflow==3.3.2" "apache-airflow-providers-fab==3.9.0" -e .
+          --constraint docker/constraints-airflow-3.3.2-python3.12.txt
+      - name: Importar y revisar los DAGs
+        env:
+          AIRFLOW_HOME: ${{ runner.temp }}/airflow
+          AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+        run: python scripts/verificar_dags.py
