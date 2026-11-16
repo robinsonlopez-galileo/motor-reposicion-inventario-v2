@@ -1,0 +1,12 @@
+{
+  "corte": "2017-03-06",
+  "modelo_vigente": "boosting_2017-01-02",
+  "decision": "conservar_vigente",
+  "validacion_candidato_costo_total": 583694.92,
+  "validacion_candidato_WAPE": 0.1487,
+  "validacion_baseline_costo_total": 722596.66,
+  "validacion_baseline_WAPE": 0.2104,
+  "filas_pronostico": 28512,
+  "venta_esperada_total": 12797576.3,
+  "pedido_sugerido_total": 13561586
+}

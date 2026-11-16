@@ -1,0 +1,37 @@
+schema: '2.0'
+stages:
+  reproducir:
+    cmd: python -m motor_reposicion.cli reproducir --params params.yaml --salida
+      reproduccion
+    deps:
+    - path: config
+      hash: md5
+      md5: f7cb2cd0bbc97318604d2a81431d051a.dir
+      size: 2684
+      nfiles: 3
+    - path: datos/kaggle
+      hash: md5
+      md5: bdc16ae394251e429e0116e457456a39.dir
+      size: 123397286
+      nfiles: 5
+    - path: src/motor_reposicion
+      hash: md5
+      md5: 2e1f99ec8df8df9a1531b07dcc7ad625.dir
+      size: 86545
+      nfiles: 21
+    params:
+      params.yaml:
+        reproduccion.corte: '2017-03-06'
+    outs:
+    - path: reproduccion/metricas.json
+      hash: md5
+      md5: 0b5f1a73f1bf4ff8738ea486290ea9fc
+      size: 383
+    - path: reproduccion/pedido_semanal.csv
+      hash: md5
+      md5: d75ce8e8223a7411bb13be87d7cb4964
+      size: 82721
+    - path: reproduccion/pronostico.parquet
+      hash: md5
+      md5: 3c51aa97a2536f7e927759de0b013787
+      size: 404287
